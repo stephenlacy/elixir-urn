@@ -1,5 +1,7 @@
 # URN
 
+> [hex.pm documentation](https://hexdocs.pm/urn/readme.html)
+
 **Uniform Resource Name (URN) parsing and validation in Elixir**
 
 ## Installation
