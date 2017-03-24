@@ -9,9 +9,12 @@ defmodule Urn.Mixfile do
      start_permanent: Mix.env == :prod,
      deps: deps(),
      name: "Urn",
-     description: "Uniform Resource Name (URN) parsing in Elixir",
+     description: "Uniform Resource Name (URN) parsing and validation in Elixir",
+     licenses: ["MIT"],
+     maintainers: ["Steve Lacy"],
      source_url: "https://github.com/stevelacy/urn",
      homepage_url: "https://github.com/stevelacy/urn",
+     links: %{"Github" => "https://github.com/stevelacy/elixir-urn"},
      docs: [main: "readme",
        extras: ["README.md"]]]
   end
