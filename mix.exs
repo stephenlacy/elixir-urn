@@ -10,7 +10,7 @@ defmodule Urn.Mixfile do
      deps: deps(),
      name: "Urn",
      description: "Uniform Resource Name (URN) parsing and validation in Elixir",
-     source_url: "https://github.com/stevelacy/urn",
+     source_url: "https://github.com/stevelacy/elixir-urn",
      package: [licenses: ["MIT"],
        maintainers: ["Steve Lacy"],
        links: %{"Github" => "https://github.com/stevelacy/elixir-urn"}],
