@@ -29,7 +29,7 @@ defmodule Project do
     #  }
   end
 
-  # Validate input string and verify that it is a URM
+  # Validate input string and verify that it is a URN
   def validate_urn(input) do
     IO.inspect validate(input)
     # Boolean true/false
