@@ -1,5 +1,7 @@
 # URN
 
+[![Build Status](https://travis-ci.org/stevelacy/elixir-urn.png?branch=master)](https://travis-ci.org/stevelacy/elixir-urn)
+
 > [hex.pm documentation](https://hexdocs.pm/urn/readme.html)
 
 **Uniform Resource Name (URN) parsing and validation in Elixir**
