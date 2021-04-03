@@ -1,93 +1,141 @@
-defmodule Urn do
+defmodule URN do
   @moduledoc """
-  Documentation for Urn.
+  Uniform Resource Name tooling.
 
-  ## Examples
+  URNs are a smaller subset of URIs. Both share a scheme and the same encoding
+  directives.
 
-  ### parse
+  For more indepth knowledge about what a URN is, check out [RFC8141][rfc8141].
 
-      iex> Urn.parse("urn:mycoll:143")
-      %Urn.Schema{collection: "mycoll", identifier: "143", namespace: "urn"}
-
-  ### verify
-
-      iex> Urn.verify("urn:mycoll:143", "urn:mycoll:143")
-      true
-
-  ### verify_namespace
-
-      iex> Urn.verify_namespace("urn:mycoll:143", "urn")
-      true
-
-  ### verify_collection
-
-      iex> Urn.verify_collection("urn:mycoll:143", "mycoll")
-      true
-
+  [rfc8141]: <https://tools.ietf.org/html/rfc8141>
   """
-  defmodule Schema do
-    @moduledoc """
-    URN Schema
 
-    Follows the format identified [here](http://philcalcado.com/2017/03/22/pattern_using_seudo-uris_with_microservices.html#creating-a-good-enough-puri-spec)
+  defstruct [:nid, :nss, :resolution, :query, :fragment]
 
-    ## Example:
+  @type t() :: %__MODULE__{
+          nid: term(),
+          nss: term(),
+          resolution: term(),
+          query: term(),
+          fragment: term()
+        }
 
-    "namespace:collection:identifier"
+  @type reason() :: String.t() | term()
 
-    ```elixir
-      %Schema{
-        namespace: "namespace",
-        collection: "collection",
-        identifier: "identifier"
-      }
-    ```
-
-    """
-    defstruct namespace: nil, collection: nil, identifier: nil
-  end
-
-  def parse([ namespace, collection, identifier ]) do
-    %Schema{
-      namespace: namespace,
-      collection: collection,
-      identifier: identifier,
+  @spec new(String.t(), String.t(), []) :: t() | {:error, reason()}
+  def new(nid, nss, opts \\ []) do
+    %__MODULE__{
+      nid: nid,
+      nss: nss,
+      resolution: Keyword.get(opts, :resolution),
+      query: Keyword.get(opts, :query),
+      fragment: Keyword.get(opts, :fragment)
     }
   end
 
+  def parse(nil), do: {:error, "invalid urn"}
+
+  @doc """
+  Parses a urn string into it's various parts.
+
+  # Example
+
+      {:ok, urn} = URN.parse("urn:example:a123,z456?+abc")
+  """
+  @spec parse(String.t()) :: {:ok, t()} | {:reason, reason()}
   def parse(str) when is_binary(str) do
-    parse(String.split(str, ":"))
+    with {:ok, parts} <- extract_parts(str) do
+      try do
+        {
+          :ok,
+          %__MODULE__{
+            nid: maybe_decode(Map.get(parts, "nid")),
+            nss: maybe_decode(Map.get(parts, "nss")),
+            resolution: maybe_decode(Map.get(parts, "resolution")),
+            query: maybe_decode(Map.get(parts, "query")),
+            fragment: maybe_decode(Map.get(parts, "fragment"))
+          }
+        }
+      rescue
+        ArgumentError -> {:error, "invalid urn"}
+      end
+    end
   end
 
-  def parse (str) do
-    raise "A valid URN is required in this format: namespace:collection:identifier, received: #{str}"
+  def parse(_), do: {:error, "invalid urn"}
+
+  @spec parse!(String.t()) :: t()
+  def parse!(str) do
+    case parse(str) do
+      {:ok, urn} -> urn
+      {:error, reason} -> raise "Parse error #{inspect(reason)}"
+    end
   end
 
-  def verify(a, a), do: true
+  @spec to_string(t()) :: String.t()
+  def to_string(nil), do: ""
 
-  def verify(a, b) do
-    raise "Validation failed: #{a} does not match #{b}"
+  def to_string(urn) do
+    IO.iodata_to_binary([
+      "urn",
+      ?:,
+      URI.encode(urn.nid),
+      ?:,
+      URI.encode(urn.nss),
+      if_component(urn.resolution, "?+"),
+      if_component(urn.query, "?="),
+      if_component(urn.fragment, "#")
+    ])
   end
 
-  def verify_namespace(str, namespace) when is_binary(str) do
-    parsed = parse str
-    verify_namespace parsed, namespace
+
+  @doc """
+  Checks if two URNs are equal.
+
+  Something to note, when comparing URNs, resolution, query, and fragments are
+  ignored. This is outlined in the [spec](https://tools.ietf.org/html/rfc8141#section-2.3).
+
+  """
+  def equal?(%__MODULE__{} = a, %__MODULE__{} = b) do
+    String.downcase(a.nid) == String.downcase(b.nid) and a.nss == b.nss
   end
 
-  def verify_namespace(%Schema{ namespace: namespace }, nsp) when namespace == nsp, do: true
-
-  def verify_namespace(%Schema{ namespace: namespace }, nsp) do
-    raise "Validation failed: #{namespace} does not match #{nsp}"
+  def equal?(a, b) when is_binary(a) and is_binary(b) do
+    with {:ok, urna} <- parse(a),
+         {:ok, urnb} <- parse(b) do
+      equal?(urna, urnb)
+    else
+      {:error, _} ->
+        false
+    end
   end
 
-  def verify_collection(str, namespace) when is_binary(str) do
-    parsed = parse str
-    verify_collection parsed, namespace
+  ##
+  ## Helpers
+  ##
+
+  defp if_component(component, prefix) do
+    if component do
+      [prefix, URI.encode(component)]
+    else
+      []
+    end
   end
 
-  def verify_collection(%Schema{ collection: collection }, col) when collection == col, do: true
+  defp extract_parts(str) do
+    alphanum = ~r/[a-zA-Z0-9\-]+/.source
+    pchar = ~r/([a-zA-Z0-9\-!\$\&'\(\)\*\+\.,;=_~:@\/\%])+/.source
 
-  def verify_collection(%Schema{ collection: collection }, col) do
-    raise "Validation failed: #{collection} does not match #{col}"
+    # I know this looks ugly, but I don't know a better way to compose this
+    ~r/\A(?<scheme>[uU][rR][nN]):(?<nid>#{alphanum}):(?<nss>#{pchar})(\?\+(?<resolution>#{pchar}))?(\?=(?<query>#{pchar}))?(#(?<fragment>#{pchar}))?\Z/
+    |> Regex.named_captures(str)
+    |> case do
+      nil -> {:error, "invalid urn"}
+      matched -> {:ok, matched}
+    end
   end
+
+  defp maybe_decode(nil), do: nil
+  defp maybe_decode(""), do: nil
+  defp maybe_decode(str), do: URI.decode(str)
 end
