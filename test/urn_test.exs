@@ -328,4 +328,37 @@ defmodule URNTest do
       assert URN.to_string(urn) == "urn:example:foo-bar-baz-qux#somepart"
     end
   end
+
+  test ".equal?/2" do
+    assert URN.equal?("urn:example:a123,z456", "urn:example:a123,z456")
+    assert URN.equal?("urn:example:a123,z456", "URN:example:a123,z456")
+    assert URN.equal?("urn:example:a123,z456", "URN:EXAMPLE:a123,z456")
+    assert URN.equal?("urn:example:a123,z456", "urn:EXAMPLE:a123,z456")
+
+    assert URN.equal?("urn:example:a123,z456", "urn:example:a123,z456?+abc?=xyz#789")
+    assert URN.equal?("urn:example:a123,z456", "urn:example:a123,z456?+abc?=xyz")
+    assert URN.equal?("urn:example:a123,z456", "urn:example:a123,z456?+abc#789")
+    assert URN.equal?("urn:example:a123,z456", "urn:example:a123,z456?=xyz#789")
+    assert URN.equal?("urn:example:a123,z456", "urn:example:a123,z456?+abc")
+
+    assert URN.equal?("urn:example:a123,z456", "URN:example:a123,z456?+abc?=xyz#789")
+    assert URN.equal?("urn:example:a123,z456", "URN:example:a123,z456?+abc?=xyz")
+    assert URN.equal?("urn:example:a123,z456", "URN:example:a123,z456?+abc#789")
+    assert URN.equal?("urn:example:a123,z456", "URN:example:a123,z456?=xyz#789")
+    assert URN.equal?("urn:example:a123,z456", "URN:example:a123,z456?+abc")
+
+    assert URN.equal?("urn:example:a123,z456", "urn:EXAMPLE:a123,z456?+abc?=xyz#789")
+    assert URN.equal?("urn:example:a123,z456", "urn:EXAMPLE:a123,z456?+abc?=xyz")
+    assert URN.equal?("urn:example:a123,z456", "urn:EXAMPLE:a123,z456?+abc#789")
+    assert URN.equal?("urn:example:a123,z456", "urn:EXAMPLE:a123,z456?=xyz#789")
+    assert URN.equal?("urn:example:a123,z456", "urn:EXAMPLE:a123,z456?+abc")
+
+    refute URN.equal?("urn:example:a123,z456/foo", "urn:example:a123,z456/bar")
+
+    assert URN.equal?("urn:example:a123%2Cz456", "URN:EXAMPLE:a123%2cz456")
+
+    refute URN.equal?("urn:example:A123,z456", "urn:example:a123,Z456")
+
+    refute URN.equal?("urn:example:a123,z456", "urn:example:%D0%B0123,z456")
+  end
 end
