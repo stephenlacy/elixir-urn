@@ -164,8 +164,8 @@ defmodule URNTest do
     # Invalid urns
     #
 
-    test "urn:a2-bB:exam%7Jple" do
-      {:error, "invalid urn"} = URN.parse("urn:a2-bB:exam%7Jple")
+    test "urn:a2-bB:exam\nple" do
+      {:error, "invalid urn"} = URN.parse("urn:a2-bB:exam\nple")
     end
 
     test "ur:nid:nss" do

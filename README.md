@@ -22,20 +22,17 @@ end
 defmodule Project do
   import Urn
   # Parse input string "urn:collection:id" to Map
-  def parse_urn(input) do
+  def parse(input) do
     IO.inspect parse(input)
     #  %Schema{
-    #    namespace: namespace,
-    #    collection: collection,
-    #    identifier: identifier,
+    #    nid: namespace,
+    #    nss: collection,
+    #    query: query,
+    #    resolution: resolution,
+    #    fragment: fragment,
     #  }
   end
 
-  # Validate input string and verify that it is a URN
-  def validate_urn(input) do
-    IO.inspect validate(input)
-    # Boolean true/false
-  end
 end
 
 ```

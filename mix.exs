@@ -1,7 +1,7 @@
 defmodule URN.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "1.0.0"
 
   def project do
     [
@@ -15,7 +15,7 @@ defmodule URN.Mixfile do
       description: description(),
       source_url: "https://github.com/stevelacy/elixir-urn",
       package: package(),
-      homepage_url: "https://github.com/stevelacy/urn",
+      homepage_url: "https://github.com/stevelacy/elixir-urn",
       docs: docs()
     ]
   end
