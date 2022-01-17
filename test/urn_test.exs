@@ -11,6 +11,48 @@ defmodule URNTest do
       assert urn.nss == "example"
     end
 
+    test "URN:a:example" do
+      {:ok, urn} = URN.parse("URN:a:example")
+
+      assert urn == %URN{nid: "a", nss: "example"}
+    end
+
+    test "Urn:a:example" do
+      {:ok, urn} = URN.parse("Urn:a:example")
+
+      assert urn == %URN{nid: "a", nss: "example"}
+    end
+
+    test "uRn:a:example" do
+      {:ok, urn} = URN.parse("uRn:a:example")
+
+      assert urn == %URN{nid: "a", nss: "example"}
+    end
+
+    test "urN:a:example" do
+      {:ok, urn} = URN.parse("urN:a:example")
+
+      assert urn == %URN{nid: "a", nss: "example"}
+    end
+
+    test "UrN:a:example" do
+      {:ok, urn} = URN.parse("UrN:a:example")
+
+      assert urn == %URN{nid: "a", nss: "example"}
+    end
+
+    test "URn:a:example" do
+      {:ok, urn} = URN.parse("URn:a:example")
+
+      assert urn == %URN{nid: "a", nss: "example"}
+    end
+
+    test "uRN:a:example" do
+      {:ok, urn} = URN.parse("uRN:a:example")
+
+      assert urn == %URN{nid: "a", nss: "example"}
+    end
+
     test "urn:A:example" do
       {:ok, urn} = URN.parse("urn:A:example")
 
@@ -158,6 +200,73 @@ defmodule URNTest do
       assert urn.query == nil
       assert urn.resolution == nil
       assert urn.fragment == "somepart"
+    end
+
+    test "urn:lex:eu:council:directive:2010-03-09;2010-19-UE" do
+      # EU Council Directive
+
+      {:ok, urn} = URN.parse("urn:lex:eu:council:directive:2010-03-09;2010-19-UE")
+
+      assert urn == %URN{
+               nid: "lex",
+               nss: "eu:council:directive:2010-03-09;2010-19-UE"
+             }
+    end
+
+    test "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:userName" do
+      {:ok, urn} =
+        URN.parse("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:userName")
+
+      assert urn == %URN{
+               nid: "ietf",
+               nss: "params:scim:schemas:extension:enterprise:2.0:User:userName"
+             }
+    end
+
+    test "urn:abcdefghilmnopqrstuvzabcdefghilm:x" do
+      # 32 byte nid supported
+      {:ok, urn} = URN.parse("urn:abcdefghilmnopqrstuvzabcdefghilm:x")
+
+      assert urn == %URN{
+               nid: "abcdefghilmnopqrstuvzabcdefghilm",
+               nss: "x"
+             }
+    end
+
+    test "urn:ciao:-" do
+      {:ok, urn} = URN.parse("urn:ciao:-")
+
+      assert urn == %URN{
+               nid: "ciao",
+               nss: "-"
+             }
+    end
+
+    test "urn:colon:::::nss" do
+      {:ok, urn} = URN.parse("urn:colon:::::nss")
+
+      assert urn == %URN{
+               nid: "colon",
+               nss: "::::nss"
+             }
+    end
+
+    test "urn:ciao:-!:-,:x" do
+      {:ok, urn} = URN.parse("urn:ciao:-!:-,:x")
+
+      assert urn == %URN{
+               nid: "ciao",
+               nss: "-!:-,:x"
+             }
+    end
+
+    test "urn:ciao:@!=%2C(xyz)+a,b.*@g=$_'" do
+      {:ok, urn} = URN.parse("urn:ciao:@!=%2C(xyz)+a,b.*@g=$_'")
+
+      assert urn == %URN{
+               nid: "ciao",
+               nss: "@!=,(xyz)+a,b.*@g=$_'"
+             }
     end
 
     #
