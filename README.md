@@ -12,7 +12,7 @@ Add `urn` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:urn, "~> 0.1.0"}]
+  [{:urn, "~> 1.0.0"}]
 end
 ```
 
