@@ -88,7 +88,6 @@ defmodule URN do
     ])
   end
 
-
   @doc """
   Checks if two URNs are equal.
 

@@ -20,17 +20,17 @@ end
 
 ```elixir
 defmodule Project do
-  import Urn
-  # Parse input string "urn:collection:id" to Map
-  def parse(input) do
-    IO.inspect parse(input)
-    #  %Schema{
-    #    nid: namespace,
-    #    nss: collection,
-    #    query: query,
-    #    resolution: resolution,
-    #    fragment: fragment,
-    #  }
+  alias URN
+  def action() do
+    # Parse input string "urn:collection:id" to Map
+    {:ok, urn} = URN.parse("urn:collection:id")
+
+    IO.inspect urn
+    # %URN{fragment: nil, nid: "collection", nss: "id", query: nil, resolution: nil}
+
+    # Turn back into a string
+    URN.to_string(urn)
+    # urn:collection:id
   end
 
 end
